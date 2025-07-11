@@ -1,11 +1,14 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
-#include "baseState.hpp"
 #include <map>
 
+class AIState;
+
 struct Transform {
-	sf::Vector2f position;
+	sf::Vector2f position = { 0.f, 0.f };
+	sf::Vector2f scale = { 1.f, 1.f };
+	float rotation = 0.f; // W stopniach (degrees)
 };
 struct Movement {
 	sf::Vector2f velocity = { 0.f, 0.f };
@@ -18,17 +21,18 @@ struct Gravity {
 	bool onGround = false;
 };
 struct Health {
-	float current;
-	float max;
+	float current = 0.f;
+	float max = 0.f;
 	bool alive = true;
 };
 struct Damage {
-	float damage;
-	float knockback;
+	float damage = 0.f;
+	float knockback = 0.f;
 };
 struct Collider {
 	sf::FloatRect bounds;
-	int layer;
+	sf::Vector2f offset = { 0.f,0.f };
+	int layer = -2;
 	bool active = true;
 };
 struct AI {
@@ -65,3 +69,4 @@ struct Renderable {
 // tags
 struct EnemyTag{};
 struct PlayerTag {};
+struct SolidTag {};

@@ -3,17 +3,18 @@
 //Scenes
 #include "GameScene.h"
 
-Game::Game() : window(sf::VideoMode({ 3840, 2160 }), "The Harvester", sf::State::Fullscreen){
+Game::Game() : window(sf::VideoMode({ 3840, 2160 }), "The Harvester", sf::State::Fullscreen)
+{
     C.resources.loadFont("regular", "assets/font/SchibstedGrotesk-Regular.ttf");
     C.resources.loadFont("medium", "assets/font/SchibstedGrotesk-Medium.ttf");
     C.resources.loadTexture("player", "assets/player/player/player-spritemap-v9.png");
     C.resources.loadTexture("critters", "assets/critters.png");
     C.resources.loadTexture("bosses", "assets/bosses.png");
+    C.resources.loadTexture("floor", "assets/floor.png");
 
     window.setFramerateLimit(144);
     changeScene(std::make_unique<GameScene>(C, window));
     initialize();
-
 }
 Game::~Game() {}
 
@@ -27,7 +28,7 @@ void Game::run() {
         handleEvents();
         if (!isPaused)
             update(dTime);
-        render();
+        draw();
     }
 }
 void Game::handleEvents() {
@@ -66,10 +67,10 @@ void Game::update(float dTime) {
         currentScene->update(C, dTime, window);
     }
 }
-void Game::render() {
+void Game::draw() {
     
     if (currentScene) {
-        currentScene->render(C, window);
+        currentScene->draw(C, window);
     }
     window.display();
 }

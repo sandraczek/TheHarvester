@@ -1,6 +1,5 @@
 #pragma once
-
-class Context;
+#include "Context.hpp"
 
 class MovementSystem
 {

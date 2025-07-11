@@ -132,6 +132,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AISystem.cpp" />
+    <ClCompile Include="AnimationSystem.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
@@ -140,19 +142,21 @@
     <ClCompile Include="Resources.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationSystem.h" />
     <ClInclude Include="baseState.hpp" />
     <ClInclude Include="AISystem.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Component.hpp" />
-    <ClInclude Include="ComponentStorage.hpp" />
-    <ClInclude Include="ComponentView.hpp" />
     <ClInclude Include="Context.hpp" />
-    <ClInclude Include="Factory.hpp" />
-    <ClInclude Include="EntityManager.hpp" />
+    <ClInclude Include="EntityFactory.hpp" />
+    <ClInclude Include="Event.hpp" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="IdleState.hpp" />
+    <ClInclude Include="MapFactory.hpp" />
     <ClInclude Include="MovementSystem.h" />
     <ClInclude Include="PatrolState.hpp" />
+    <ClInclude Include="Quadtree.hpp" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="Scene.hpp" />
   </ItemGroup>

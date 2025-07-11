@@ -1,8 +1,9 @@
 #include "AISystem.h"
 #include "IdleState.hpp"
+#include "baseState.hpp"
 
 void AISystem::update(Context& C, float dTime) {
-    for (auto& [entity,ai] : C.components.getAll<AI>()) {
+    for (const auto& [entity,ai] : C.registry.view<AI>().each()) {
         if (!ai.currentState) {
             ai.currentState = std::make_shared<IdleState>();
             ai.currentState->enter(C, entity);

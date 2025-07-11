@@ -1,5 +1,5 @@
 #include "MovementSystem.h"
-#include "Component.hpp"
+#include <iostream>
 
 namespace WorldConstants {
 
@@ -10,23 +10,23 @@ namespace WorldConstants {
 }
 
 void MovementSystem::update(Context& C, float dTime) {
-    for (const auto& [entity, pos, mov] : C.components.view<Transform, Movement>()) {
+    for (const auto& [entity, transform, mov] : C.registry.view<Transform, Movement>().each()) {
 
         mov.acceleration = { 0.f, 0.f };
 
-        if (auto* input = C.components.try_get<InputState>(entity)) {
+        if (auto* input = C.registry.try_get<InputState>(entity)) {
             mov.acceleration.x += input->moveDirection * WorldConstants::MOVE_ACCELERATION;
         }
 
-        if (auto* grav = C.components.try_get<Gravity>(entity)) {
-            if (!grav->onGround) {
+        if (auto* gravity = C.registry.try_get<Gravity>(entity)) {
+            if (!gravity->onGround) {
                 mov.acceleration.y += WorldConstants::GRAVITY_ACCELERATION;
             }
 
-            if (auto* input = C.components.try_get<InputState>(entity)) {
-                if (input->wantsToJump && grav->onGround) {
+            if (auto* input = C.registry.try_get<InputState>(entity)) {
+                if (input->wantsToJump && gravity->onGround) {
                     mov.velocity.y = WorldConstants::JUMP_VELOCITY;
-                    grav->onGround = false;
+                    gravity->onGround = false;
                     input->wantsToJump = false;
                 }
             }
@@ -34,10 +34,10 @@ void MovementSystem::update(Context& C, float dTime) {
 
         mov.velocity += mov.acceleration * dTime;
 
-        bool onGround = C.components.try_get<Gravity>(entity) ? C.components.get<Gravity>(entity).onGround : false;
+        bool onGround = C.registry.try_get<Gravity>(entity) ? C.registry.get<Gravity>(entity).onGround : false;
         float friction = onGround ? mov.groundFriction : mov.airFriction;
 
-        if (C.components.try_get<InputState>(entity) == nullptr || C.components.get<InputState>(entity).moveDirection == 0.f) {
+        if (C.registry.try_get<InputState>(entity) == nullptr || C.registry.get<InputState>(entity).moveDirection == 0.f) {
             mov.velocity.x *= std::pow(friction, dTime * 60.f);
         }
 
@@ -46,8 +46,8 @@ void MovementSystem::update(Context& C, float dTime) {
         }
 
         mov.velocity.x = std::clamp(mov.velocity.x, -mov.maxSpeed, mov.maxSpeed);
-        mov.velocity.y = std::clamp(mov.velocity.y, -WorldConstants::JUMP_VELOCITY, WorldConstants::MAX_FALL_SPEED);
+        mov.velocity.y = std::clamp(mov.velocity.y, WorldConstants::JUMP_VELOCITY, WorldConstants::MAX_FALL_SPEED);
 
-        pos.position += mov.velocity * dTime;
+        transform.position += mov.velocity * dTime;
     }
 }

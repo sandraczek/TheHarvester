@@ -27,8 +27,8 @@ public:
 	sf::RenderWindow& getWindow() { return window; };
 private:
 	void handleEvents();
-	void update(float dt);
-	void render();
+	void update(float dTime);
+	void draw();
 	void initialize();
 };
 

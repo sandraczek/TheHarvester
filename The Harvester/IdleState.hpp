@@ -1,19 +1,18 @@
 #pragma once
 #include "baseState.hpp"
-#include "Component.hpp"
 
 class IdleState : public AIState {
 public:
     AIStateType getType() const override { return AIStateType::Idle; }
-    void enter(Context& C, Entity e) override {
-        if (C.components.has<Movement>(e)) {
-            C.components.get<Movement>(e).velocity = { 0.f, 0.f };
+    void enter(Context& C, entt::entity e) override {
+        if (auto* input = C.registry.try_get<InputState>(e)) {
+            input->moveDirection = 0.f;
         }
     }
 
-    std::shared_ptr<AIState> update(Context& C, Entity e, float deltaTime) override {
-        if (C.components.has<Transform>(e)) {
-            const sf::Vector2f& enemyPos = C.components.get<Transform>(e).position;
+    std::shared_ptr<AIState> update(Context& C, entt::entity e, float deltaTime) override {
+
+        if (const auto& player = C.registry.all_of<PlayerTag>(e)) {
 
             //float distance = std::hypot(enemyPos.x - playerPos.x, enemyPos.y - playerPos.y);
            // if (distance < 300.f) {
@@ -23,6 +22,6 @@ public:
         return nullptr;
     }
 
-    void exit(Context& C, Entity e) override {
+    void exit(Context& C, entt::entity e) override {
     }
 };

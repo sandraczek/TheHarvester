@@ -1,12 +1,11 @@
 #include "GameScene.h"
 //#include "Game.h"
-#include "Factory.hpp"
+#include "EntityFactory.hpp"
+#include "MapFactory.hpp"
 
-GameScene::GameScene(Context& C, sf::RenderWindow& window): renderSys(window.getSize())  {
-    floor.setFillColor(sf::Color::Black);
-    floor.setSize({ static_cast<float>(window.getSize().x + 2000),200.f });
-    floor.setPosition({ -1000,1000 });
-    spawnPlayer(C, { 0.f,0.f });
+GameScene::GameScene(Context& C, sf::RenderWindow& window) : systems{ RenderSystem(window.getSize()) } {
+    spawnFloor(C, { {-1000.f, 1000.f}, {4000.f, 200.f} });
+    spawnPlayer(C, { 100.f,100.f });
 }
 GameScene::~GameScene() {}
 
@@ -27,10 +26,11 @@ void GameScene::handleEvents(Context& C, const sf::Event& event) {
     }
 }
 void GameScene::update(Context& C, float dTime, sf::RenderWindow& window) {
-    ai.update(C, dTime);
-    movement.update(C, dTime);
-    renderSys.draw(C, window, dTime);
+    systems.ai.update(C, dTime);
+    systems.movement.update(C, dTime);
+    systems.collisions.update(C);
+	systems.animation.update(C, dTime);
 }
-void GameScene::render(Context& C, sf::RenderWindow& window) {
-    window.draw(floor);
+void GameScene::draw(Context& C, sf::RenderWindow& window) {
+    systems.render.draw(C, window);
 }
