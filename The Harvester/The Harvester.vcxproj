@@ -131,34 +131,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AISystem.cpp" />
     <ClCompile Include="AnimationSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="DamageSystem.cpp" />
+    <ClCompile Include="Factory.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="Resources.hpp" />
+    <ClCompile Include="UserInputSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationSystem.h" />
-    <ClInclude Include="baseState.hpp" />
-    <ClInclude Include="AISystem.h" />
     <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="Component.hpp" />
     <ClInclude Include="Context.hpp" />
-    <ClInclude Include="EntityFactory.hpp" />
+    <ClInclude Include="DamageSystem.h" />
     <ClInclude Include="Event.hpp" />
+    <ClInclude Include="Factory.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameScene.h" />
-    <ClInclude Include="IdleState.hpp" />
-    <ClInclude Include="MapFactory.hpp" />
     <ClInclude Include="MovementSystem.h" />
-    <ClInclude Include="PatrolState.hpp" />
-    <ClInclude Include="Quadtree.hpp" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="Scene.hpp" />
+    <ClInclude Include="UserInputSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,7 @@
 #include "Context.hpp"
 
 struct CollisionEvent {
-    entt::entity entityA;
-    entt::entity entityB;
+    entt::entity e1;
+    entt::entity e2;
+    sf::FloatRect intersection;
 };

@@ -1,7 +1,10 @@
 #pragma once
-#include "Context.hpp" // Twoja struktura kontekstu
+#include "Context.hpp"
 
 class AnimationSystem {
 public:
-    void update(Context& C, float dTime);
+    AnimationSystem(Context& C) : C(C) {}
+    void update(float dTime);
+private:
+    Context& C;
 };

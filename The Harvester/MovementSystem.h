@@ -1,9 +1,16 @@
 #pragma once
 #include "Context.hpp"
 
+class CollisionEvent;
+
 class MovementSystem
 {
 public:
-	void update(Context& C, float dTime);
+	MovementSystem(Context& C);
+	void update(float dTime);
+
+	void onCollisionEvent(const CollisionEvent& event);
+private:
+	Context& C;
 };
 

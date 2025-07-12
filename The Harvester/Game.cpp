@@ -53,7 +53,7 @@ void Game::handleEvents() {
         }
 
         if (currentScene && !isPaused) {
-            currentScene->handleEvents(C, *event);
+            currentScene->handleEvents(*event);
         }
     }
 }
@@ -64,13 +64,13 @@ void Game::changeScene(std::unique_ptr<Scene> newScene) {
 }
 void Game::update(float dTime) {
     if (currentScene) {
-        currentScene->update(C, dTime, window);
+        currentScene->update(dTime, window);
     }
 }
 void Game::draw() {
     
     if (currentScene) {
-        currentScene->draw(C, window);
+        currentScene->draw(window);
     }
     window.display();
 }

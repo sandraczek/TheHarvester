@@ -1,7 +1,7 @@
 #include "AnimationSystem.h"
 
-void AnimationSystem::update(Context& C, float dTime) {
-    for (const auto& [entity, anim, renderable] : C.registry.view<AnimationState, Renderable>().each()) {
+void AnimationSystem::update(float dTime) {
+    for (auto [entity, anim, renderable] : C.registry.view<AnimationState, Renderable>().each()) {
         anim.timer += dTime;
         const auto& animData = anim.animations.at(anim.currentState);
 
@@ -13,5 +13,13 @@ void AnimationSystem::update(Context& C, float dTime) {
             int frameY = 0; // Zak³adaj¹c, ¿e klatki s¹ w jednym rzêdzie
             renderable.textureRect = { { frameX, frameY }, renderable.frameSize };
         }
+    }
+    for (auto [entity, input, trans] : C.registry.view<InputState, Transform>().each()) {
+       if (input.moveDirection > 0.f)
+           if (trans.scale.x < 0)
+               trans.scale.x = -trans.scale.x;
+       else if (input.moveDirection < 0.f)
+           if (trans.scale.x > 0)
+                trans.scale.x = -trans.scale.x;
     }
 }

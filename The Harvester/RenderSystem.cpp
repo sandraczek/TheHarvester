@@ -1,4 +1,5 @@
 #include "RenderSystem.h"
+#include <iostream>
 
 constexpr sf::Color backgroundColor = { 20,20,40,255 };
 
@@ -6,8 +7,10 @@ struct RenderJob {
 	int zIndex;
 	sf::Vector2f position;
     sf::Vector2f scale;
+    sf::Angle rotation;
 	sf::IntRect texRect;
 	const sf::Texture* texture;
+    float direction = 0.f;
 
 	bool operator<(const RenderJob& other) const {
 		if (zIndex != other.zIndex) {
@@ -17,13 +20,13 @@ struct RenderJob {
 	}
 };
 
-RenderSystem::RenderSystem(sf::Vector2u windowSize) {
+RenderSystem::RenderSystem(Context& C, sf::Vector2u windowSize) :C(C){
 	camera.setSize(static_cast<sf::Vector2f>(windowSize));
 	camera.setCenter({ windowSize.x / 2.f, windowSize.y / 2.f });
 }
 
-void RenderSystem::draw(Context& C, sf::RenderWindow& window) {
-    for (const auto& [entity, transform] : C.registry.view<Transform, PlayerTag>().each()) {
+void RenderSystem::draw(sf::RenderWindow& window) {
+    for (auto [entity, transform] : C.registry.view<Transform, PlayerTag>().each()) {
         camera.setCenter(transform.position);
     }
 
@@ -37,13 +40,18 @@ void RenderSystem::draw(Context& C, sf::RenderWindow& window) {
         }
         if (!renderable.texture) continue;
 
-        renderQueue.push_back({
+        RenderJob j{
             renderable.zIndex,
             transform.position,
             transform.scale,
+            transform.rotation,
             renderable.textureRect,
             renderable.texture
-            });
+        };
+        if (auto* input = C.registry.try_get<InputState>(entity))
+            j.direction = input->moveDirection;
+
+        renderQueue.push_back(j);
     }
 
     std::sort(renderQueue.begin(), renderQueue.end());
@@ -53,7 +61,7 @@ void RenderSystem::draw(Context& C, sf::RenderWindow& window) {
     sf::VertexArray batch(sf::PrimitiveType::Triangles);
     const sf::Texture* currentTexture = nullptr;
 
-    for (const auto& job : renderQueue) {
+    for (auto& job : renderQueue) {
         if (job.texture != currentTexture) {
             if (batch.getVertexCount() > 0) {
                 sf::RenderStates states;
@@ -68,14 +76,19 @@ void RenderSystem::draw(Context& C, sf::RenderWindow& window) {
         const sf::Vector2f& pos = job.position;
         const sf::IntRect& rect = job.texRect;
         const sf::Vector2f size = {
-            static_cast<float>(rect.size.x) * job.scale.x,
-            static_cast<float>(rect.size.y) * job.scale.y
+            static_cast<float>(rect.size.x) * job.scale.x,// * 0.5f,
+            static_cast<float>(rect.size.y) * job.scale.y// * 0.5f
         };
 
         // Obliczenie wspó³rzêdnych wierzcho³ków i tekstury
         sf::Vertex v[4];
-        v[0].position = pos;
-        v[1].position = pos + sf::Vector2f(size.x, 0.f);
+        //v[0].position = pos + sf::Vector2f(-halfSize.x, -halfSize.y);
+        //v[1].position = pos + sf::Vector2f(halfSize.x, -halfSize.y);
+        //v[2].position = pos + sf::Vector2f(halfSize.x, halfSize.y);
+        //v[3].position = pos + sf::Vector2f(-halfSize.x, halfSize.y);
+
+        v[0].position = pos + sf::Vector2f(0.f, 0.f);
+        v[1].position = pos + sf::Vector2f(size.x,0.f);
         v[2].position = pos + sf::Vector2f(size.x, size.y);
         v[3].position = pos + sf::Vector2f(0.f, size.y);
 
@@ -83,6 +96,11 @@ void RenderSystem::draw(Context& C, sf::RenderWindow& window) {
         v[1].texCoords = sf::Vector2f(static_cast<float>(rect.position.x + rect.size.x), static_cast<float>(rect.position.y));
         v[2].texCoords = sf::Vector2f(static_cast<float>(rect.position.x + rect.size.x), static_cast<float>(rect.position.y + rect.size.y));
         v[3].texCoords = sf::Vector2f(static_cast<float>(rect.position.x), static_cast<float>(rect.position.y + rect.size.y));
+
+        sf::Transform transform;
+        transform.translate(pos);
+        sf::Vector2f origin = size * 0.5f;
+        transform.rotate(job.rotation, origin);
 
         batch.append(v[0]);
         batch.append(v[1]);
@@ -100,14 +118,22 @@ void RenderSystem::draw(Context& C, sf::RenderWindow& window) {
         window.draw(batch, states);
     }
 
-    for (const auto& [e, coll, render] : C.registry.view<Collider, Renderable>().each()) {
-        sf::RectangleShape rect;
-        rect.setPosition(coll.bounds.position);
-        rect.setSize(coll.bounds.size);
-        rect.setFillColor(sf::Color::Transparent);
-        rect.setOutlineThickness(1);
-        rect.setOutlineColor(sf::Color::Red);
-        window.draw(rect);
+    if (C.debugMode) {
+        for (auto [e, col, trans, render] : C.registry.view<Collider, Transform, Renderable>().each()) {
+            const sf::Vector2f scaledSizeA = { col.size.x * trans.scale.x,col.size.y * trans.scale.y };
+            const sf::Vector2f scaledOffsetA = { col.offset.x * trans.scale.x, col.offset.y * trans.scale.y };
+            const sf::Vector2f globalPositionA = trans.position + scaledOffsetA;
+
+            sf::RectangleShape shape;
+            std::cout << trans.scale.x << ", " << trans.scale.y << "\n";
+            shape.setSize(scaledSizeA);
+            shape.setPosition(globalPositionA);
+            shape.setFillColor(sf::Color::Transparent);
+            shape.setOutlineThickness(1);
+            shape.setOutlineColor(sf::Color::Red);
+            window.draw(shape);
+            //  std::cout <<rect.getSize
+        }
     }
 
     //C.qtree.draw(&window);

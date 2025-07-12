@@ -7,8 +7,9 @@ class RenderSystem
 {
 private:
 	sf::View camera;
+	Context& C;
 public:
-	RenderSystem(sf::Vector2u windowSize);
-	void draw(Context& C, sf::RenderWindow& window);
+	RenderSystem(Context& C, sf::Vector2u windowSize);
+	void draw(sf::RenderWindow& window);
 };
 

@@ -25,14 +25,8 @@
     <Filter Include="Source Files\Scenes">
       <UniqueIdentifier>{67cdbf84-d8c3-415a-b570-8663766ed9d0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Factories">
-      <UniqueIdentifier>{6baf8695-fca2-46ba-96c7-5ecc3fc1fa8c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{c2b47f94-a421-4d42-9b31-f10b4a9e109e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Components\AIStates">
-      <UniqueIdentifier>{08b66767-94e7-4b15-b229-6b824f73b8f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,9 +42,6 @@
     <ClCompile Include="GameScene.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="AISystem.cpp">
-      <Filter>Source Files\Systems</Filter>
-    </ClCompile>
     <ClCompile Include="Resources.hpp">
       <Filter>Header Files</Filter>
     </ClCompile>
@@ -61,6 +52,15 @@
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
     <ClCompile Include="CollisionSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="DamageSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserInputSystem.cpp">
       <Filter>Source Files\Systems</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,23 +80,8 @@
     <ClInclude Include="GameScene.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="EntityFactory.hpp">
-      <Filter>Header Files\Factories</Filter>
-    </ClInclude>
     <ClInclude Include="Component.hpp">
       <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="AISystem.h">
-      <Filter>Header Files\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="IdleState.hpp">
-      <Filter>Header Files\Components\AIStates</Filter>
-    </ClInclude>
-    <ClInclude Include="PatrolState.hpp">
-      <Filter>Header Files\Components\AIStates</Filter>
-    </ClInclude>
-    <ClInclude Include="baseState.hpp">
-      <Filter>Header Files\Components\AIStates</Filter>
     </ClInclude>
     <ClInclude Include="RenderSystem.h">
       <Filter>Header Files\Systems</Filter>
@@ -104,17 +89,20 @@
     <ClInclude Include="AnimationSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="MapFactory.hpp">
-      <Filter>Header Files\Factories</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>Header Files\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="Quadtree.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Event.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UserInputSystem.h">
+      <Filter>Header Files\Systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

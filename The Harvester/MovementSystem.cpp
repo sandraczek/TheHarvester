@@ -1,16 +1,21 @@
 #include "MovementSystem.h"
 #include <iostream>
+#include "Event.hpp"
 
 namespace WorldConstants {
 
-	constexpr float GRAVITY_ACCELERATION = 2800.f;
+	constexpr float GRAVITY_ACCELERATION = 2496.f;
 	constexpr float MOVE_ACCELERATION = 3000.f;
-	constexpr float JUMP_VELOCITY = -800.f;
-	constexpr float MAX_FALL_SPEED = 1200.f;
+	constexpr float JUMP_VELOCITY = -1024.f;
+	constexpr float MAX_FALL_SPEED = 1600.f;
 }
 
-void MovementSystem::update(Context& C, float dTime) {
-    for (const auto& [entity, transform, mov] : C.registry.view<Transform, Movement>().each()) {
+MovementSystem::MovementSystem(Context& C): C(C) {
+    C.dispatcher.sink<CollisionEvent>().connect<&MovementSystem::onCollisionEvent>(*this);
+}
+
+void MovementSystem::update(float dTime) {
+    for (auto [entity, transform, mov] : C.registry.view<Transform, Movement>().each()) {
 
         mov.acceleration = { 0.f, 0.f };
 
@@ -19,14 +24,13 @@ void MovementSystem::update(Context& C, float dTime) {
         }
 
         if (auto* gravity = C.registry.try_get<Gravity>(entity)) {
-            if (!gravity->onGround) {
-                mov.acceleration.y += WorldConstants::GRAVITY_ACCELERATION;
-            }
+            mov.acceleration.y += WorldConstants::GRAVITY_ACCELERATION;
 
             if (auto* input = C.registry.try_get<InputState>(entity)) {
-                if (input->wantsToJump && gravity->onGround) {
-                    mov.velocity.y = WorldConstants::JUMP_VELOCITY;
-                    gravity->onGround = false;
+                if (input->wantsToJump) {
+                    if (gravity->onGround) {
+                        mov.velocity.y = WorldConstants::JUMP_VELOCITY;
+                    }
                     input->wantsToJump = false;
                 }
             }
@@ -49,5 +53,98 @@ void MovementSystem::update(Context& C, float dTime) {
         mov.velocity.y = std::clamp(mov.velocity.y, WorldConstants::JUMP_VELOCITY, WorldConstants::MAX_FALL_SPEED);
 
         transform.position += mov.velocity * dTime;
+
+        if (auto* grav = C.registry.try_get<Gravity>(entity)) {
+            grav->onGround = false;
+        }
     }
+}
+
+void MovementSystem::onCollisionEvent(const CollisionEvent& event) {
+    auto& trans1 = C.registry.get<Transform>(event.e1);
+    auto& trans2 = C.registry.get<Transform>(event.e2);
+
+    auto* mov = C.registry.try_get<Movement>(event.e1);
+
+    if (C.registry.all_of<SolidTag>(event.e1)) {
+        auto* grav = C.registry.try_get<Gravity>(event.e2);
+        auto* mov = C.registry.try_get<Movement>(event.e2);
+        if (event.intersection.size.x < event.intersection.size.y) {
+            if (trans1.position.x > trans2.position.x)
+                trans2.position.x -= event.intersection.size.x;
+            else
+                trans2.position.x += event.intersection.size.x;
+            if (mov)
+                mov->velocity.x = 0.f;
+        }
+        else {
+            if (trans1.position.y > trans2.position.y) {
+                trans2.position.y -= event.intersection.size.y;
+                if (grav)
+                    grav->onGround = true;
+            }
+            else
+                trans2.position.y += event.intersection.size.y;
+            if (mov)
+                mov->velocity.y = 0.f;
+        }
+    }
+    else if (C.registry.all_of<SolidTag>(event.e2)) {
+        auto* grav = C.registry.try_get<Gravity>(event.e1);
+        auto* mov = C.registry.try_get<Movement>(event.e1);
+        if (event.intersection.size.x < event.intersection.size.y) {
+            if (trans2.position.x > trans1.position.x)
+                trans1.position.x -= event.intersection.size.x;
+            else
+                trans1.position.x += event.intersection.size.x;
+            if (mov)
+                mov->velocity.x = 0.f;
+        }
+        else {
+            if (trans2.position.y > trans1.position.y) {
+                trans1.position.y -= event.intersection.size.y;
+                if (grav)
+                    grav->onGround = true;
+            }
+            else
+                trans1.position.y += event.intersection.size.y;
+            if (mov)
+                mov->velocity.y = 0.f;
+        }
+    }
+    else {
+        auto* mov1 = C.registry.try_get<Movement>(event.e1);
+        auto* mov2 = C.registry.try_get<Movement>(event.e2);
+
+        if (event.intersection.size.x < event.intersection.size.y) {
+            if (trans1.position.x > trans2.position.x) {
+                trans1.position.x += event.intersection.size.x * 0.5f;
+                trans2.position.x -= event.intersection.size.x * 0.5f;
+            }
+            else {
+                trans1.position.x += event.intersection.size.x * 0.5f;
+                trans2.position.x -= event.intersection.size.x * 0.5f;
+            }
+
+            if (mov1)
+                mov1->velocity.x = 0.f;
+            if (mov2)
+                mov2->velocity.x = 0.f;
+        }
+        else {
+            if (trans1.position.y > trans2.position.y) {
+                trans1.position.y += event.intersection.size.y * 0.5f;
+                trans2.position.y -= event.intersection.size.y * 0.5f;
+            }                                                
+            else {                                           
+                trans1.position.y += event.intersection.size.y * 0.5f;
+                trans2.position.y -= event.intersection.size.y * 0.5f;
+            }
+            if (mov1)
+                mov1->velocity.y = 0.f;
+            if (mov2)
+                mov2->velocity.y = 0.f;
+        }
+    }
+
 }
