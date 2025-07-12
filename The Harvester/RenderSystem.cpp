@@ -46,10 +46,9 @@ void RenderSystem::draw(sf::RenderWindow& window) {
             transform.scale,
             transform.rotation,
             renderable.textureRect,
-            renderable.texture
+            renderable.texture,
+            renderable.direction
         };
-        if (auto* input = C.registry.try_get<InputState>(entity))
-            j.direction = input->moveDirection;
 
         renderQueue.push_back(j);
     }
@@ -58,65 +57,24 @@ void RenderSystem::draw(sf::RenderWindow& window) {
 
     window.clear(backgroundColor);
 
-    sf::VertexArray batch(sf::PrimitiveType::Triangles);
-    const sf::Texture* currentTexture = nullptr;
 
     for (auto& job : renderQueue) {
-        if (job.texture != currentTexture) {
-            if (batch.getVertexCount() > 0) {
-                sf::RenderStates states;
-                states.texture = currentTexture;
-                window.draw(batch, states);
-                batch.clear();
-            }
-            currentTexture = job.texture;
+        sf::Sprite sprite(*job.texture);
+        sprite.setTextureRect(job.texRect);
+        sprite.setPosition(job.position);
+        sprite.setRotation(job.rotation);
+
+        if (job.direction < 0.f) {
+            sprite.setOrigin({sprite.getLocalBounds().size.x, 0.f});
+            sprite.setScale({ -job.scale.x, job.scale.y });
         }
+        else
+            sprite.setScale(job.scale);
 
-        // Pobranie danych do renderowania
-        const sf::Vector2f& pos = job.position;
-        const sf::IntRect& rect = job.texRect;
-        const sf::Vector2f size = {
-            static_cast<float>(rect.size.x) * job.scale.x,// * 0.5f,
-            static_cast<float>(rect.size.y) * job.scale.y// * 0.5f
-        };
-
-        // Obliczenie wspó³rzêdnych wierzcho³ków i tekstury
-        sf::Vertex v[4];
-        //v[0].position = pos + sf::Vector2f(-halfSize.x, -halfSize.y);
-        //v[1].position = pos + sf::Vector2f(halfSize.x, -halfSize.y);
-        //v[2].position = pos + sf::Vector2f(halfSize.x, halfSize.y);
-        //v[3].position = pos + sf::Vector2f(-halfSize.x, halfSize.y);
-
-        v[0].position = pos + sf::Vector2f(0.f, 0.f);
-        v[1].position = pos + sf::Vector2f(size.x,0.f);
-        v[2].position = pos + sf::Vector2f(size.x, size.y);
-        v[3].position = pos + sf::Vector2f(0.f, size.y);
-
-        v[0].texCoords = sf::Vector2f(static_cast<float>(rect.position.x), static_cast<float>(rect.position.y));
-        v[1].texCoords = sf::Vector2f(static_cast<float>(rect.position.x + rect.size.x), static_cast<float>(rect.position.y));
-        v[2].texCoords = sf::Vector2f(static_cast<float>(rect.position.x + rect.size.x), static_cast<float>(rect.position.y + rect.size.y));
-        v[3].texCoords = sf::Vector2f(static_cast<float>(rect.position.x), static_cast<float>(rect.position.y + rect.size.y));
-
-        sf::Transform transform;
-        transform.translate(pos);
-        sf::Vector2f origin = size * 0.5f;
-        transform.rotate(job.rotation, origin);
-
-        batch.append(v[0]);
-        batch.append(v[1]);
-        batch.append(v[3]);
-
-        batch.append(v[1]);
-        batch.append(v[2]);
-        batch.append(v[3]);
+        window.draw(sprite);
     }
 
-    // Narysuj ostatni batch, który pozosta³ w pêtli
-    if (batch.getVertexCount() > 0 && currentTexture) {
-        sf::RenderStates states;
-        states.texture = currentTexture;
-        window.draw(batch, states);
-    }
+   
 
     if (C.debugMode) {
         for (auto [e, col, trans, render] : C.registry.view<Collider, Transform, Renderable>().each()) {

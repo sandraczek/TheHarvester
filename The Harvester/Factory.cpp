@@ -16,7 +16,7 @@ entt::entity Factory::Player(const sf::Vector2f& pos) {
 
     C.registry.emplace<Renderable>(e, "player", sf::IntRect{ {0,0}, { 46, 50 } }, 0);
 
-    C.registry.emplace<Collider>(e, sf::Vector2f{ 46.f, 50.f });
+    C.registry.emplace<Collider>(e, sf::Vector2f{ 26.f, 44.f }, sf::Vector2f{ 10.f,4.f });
 
     return e;
 }
@@ -55,7 +55,7 @@ entt::entity Factory::Box(const sf::FloatRect& rect) {
     C.registry.emplace<Transform>(e, rect.position, scale);
     C.registry.emplace<SolidTag>(e);
 
-    C.registry.emplace<Renderable>(e, "floor", textureRect, -10, false);
+    C.registry.emplace<Renderable>(e, "floor", textureRect, -10);
 
     C.registry.emplace<Collider>(e, static_cast<sf::Vector2f>(textureRect.size));
 

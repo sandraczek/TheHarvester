@@ -13,7 +13,7 @@ struct Movement {
 	sf::Vector2f acceleration = { 0.f, 0.f };
 	float maxSpeed = 400.f;
 	float groundFriction = 0.9f;
-	float airFriction = 0.98f;
+	float airFriction = 0.93f;
 };
 struct Gravity {
 	bool onGround = false;
@@ -55,7 +55,7 @@ struct Renderable {
 	std::string textureName;
 	sf::IntRect textureRect;
  	int zIndex = 0;
-	bool centeredOrigin = true;
+	float direction = 1.f;
 	sf::Vector2i frameSize = { 32,32 };
 
 	const sf::Texture* texture = nullptr;

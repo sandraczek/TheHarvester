@@ -21,6 +21,10 @@ void MovementSystem::update(float dTime) {
 
         if (auto* input = C.registry.try_get<InputState>(entity)) {
             mov.acceleration.x += input->moveDirection * WorldConstants::MOVE_ACCELERATION;
+            if (auto* rend = C.registry.try_get<Renderable>(entity)) {
+                if (input->moveDirection != 0.f)
+                    rend->direction = input->moveDirection;
+            }
         }
 
         if (auto* gravity = C.registry.try_get<Gravity>(entity)) {
